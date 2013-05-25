@@ -132,5 +132,5 @@
       (delete-overlay hrb-overlay))
   )
 
-(provide hrb-mode)
+(provide 'hrb-mode)
 ;; eof
