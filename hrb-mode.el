@@ -30,7 +30,7 @@
   :tag "Hilight Ruby Block"
   :group 'hrb)
 
-(defcustom hrb-highlight-face 'highlight
+(defcustom hrb-hilight-face 'show-paren-match-face
   "Face for block hilighting."
   :type	 'face
   :group 'hrb)
@@ -39,6 +39,21 @@
   "Seconds before showing matching keyword/end"
   :type	 'number
   :group 'hrb)
+
+(defcustom hrb-hilight-mode 'complete
+  "Describes how to hilight the ruby blocks. Default is complete.
+
+Choces are as follows:
+
+nil      => nothing
+complete => hilight complete block
+keywords => hilight only keywords"
+  :type	 '(choice
+           (const :tag "nothing" nil)
+           (const :tag "keywords" keywords)
+           (const :tag "complete block" complete))
+  :group 'hrb
+  )
 
 (defconst hrb-keywords
   (list
@@ -49,6 +64,7 @@
 
 (defvar hrb-timer nil)
 (defvar hrb-overlay nil)
+(defvar hrb-overlay-1 nil)
 
 (define-minor-mode hrb-mode
   "Highlight the current ruby block when on a block keyword (if, unless etc) or on an end like show-paren-mode"
@@ -85,7 +101,7 @@
                (equal cface 'font-lock-keyword-face))
       (let (
             (start (hrb-keyword-start (point)))
-            (pos (hrb-keyword-position (point)))
+            (pos (hrb-keyword-start (hrb-keyword-position (point))))
             )
         (hrb-hilight start pos)
         )
@@ -126,7 +142,6 @@
 
       (progn
         (ruby-end-of-block)
-        (right-word)
         (setq pos (point))
         )
       )
@@ -137,13 +152,61 @@
 
 
 (defun hrb-hilight (start end)
-  (if hrb-overlay
-      (move-overlay hrb-overlay start end)
-    (setq hrb-overlay (make-overlay start end))
+  (cond
+   ((equal hrb-hilight-mode 'complete)
+    (if hrb-overlay
+        (move-overlay hrb-overlay start end)
+      (setq hrb-overlay (make-overlay start end))
+      )
+
+    (overlay-put hrb-overlay
+                 'face hrb-hilight-face)
     )
 
-  (overlay-put hrb-overlay
-               'face hrb-highlight-face)
+   ((equal hrb-hilight-mode 'keywords)
+    (save-excursion
+      (goto-char start)
+      (let (
+            start1
+            end1
+            )
+
+        (skip-chars-forward "A-Za-z0-9")
+        (setq start1 (point))
+
+        (skip-chars-backward "A-Za-z0-9")
+        (setq end1 (point))
+
+        (if hrb-overlay
+            (move-overlay hrb-overlay start1 end1)
+          (setq hrb-overlay (make-overlay start1 end1))
+          )
+        (overlay-put hrb-overlay
+                     'face hrb-hilight-face)
+        )
+
+      (goto-char end)
+      (let (
+            start1
+            end1
+            )
+
+        (skip-chars-forward "A-Za-z0-9")
+        (setq start1 (point))
+
+        (skip-chars-backward "A-Za-z0-9")
+        (setq end1 (point))
+
+        (if hrb-overlay-1
+            (move-overlay hrb-overlay-1 start1 end1)
+          (setq hrb-overlay-1 (make-overlay start1 end1))
+          )
+        (overlay-put hrb-overlay-1
+                     'face hrb-hilight-face)
+        )
+      )
+    )
+   )
 
   (add-hook 'pre-command-hook 'hrb-stop-hilight)
   )
@@ -151,8 +214,11 @@
 (defun hrb-stop-hilight ()
   "Remove overlay when done"
   (remove-hook 'pre-command-hook 'hrb-stop-hilight)
+
   (when hrb-overlay
       (delete-overlay hrb-overlay))
+  (when hrb-overlay-1
+      (delete-overlay hrb-overlay-1))
   )
 
 (provide 'hrb-mode)
