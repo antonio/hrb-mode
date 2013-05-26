@@ -1,9 +1,9 @@
 ## Synopsis
 
-**hrb-mode** is an Emacs minor-mode for hilighting Ruby blocks just like `(show-paren-mode t)`.
+**hrb-mode** is an Emacs minor-mode for highlighting Ruby blocks just like `(show-paren-mode t)`.
 
-![hrb-mode Screenshot](https://github.com/ckruse/hrb-mode/raw/master/screenshots/hilight-mode-region.png)
-![hrb-mode Screenshot](https://github.com/ckruse/hrb-mode/raw/master/screenshots/hilight-mode-keywords.png)
+![hrb-mode Screenshot](https://github.com/ckruse/hrb-mode/raw/master/screenshots/highlight-mode-region.png)
+![hrb-mode Screenshot](https://github.com/ckruse/hrb-mode/raw/master/screenshots/highlight-mode-keywords.png)
 
 ## Installation
 
@@ -16,20 +16,20 @@ Just clone this repository and add this directory to your `load-path`:
 ;; show region immediately
 (setq hrb-delay 0)
 
-;; set different face for hilighting keywords
-(setq hrb-hilight-keyword-face 'show-paren-match-face)
+;; set different face for highlighting keywords
+(setq hrb-highlight-keyword-face 'show-paren-match-face)
 
-;; set different face for hilighting block
-(setq hrb-hilight-block-face 'highlight)
+;; set different face for highlighting block
+(setq hrb-highlight-block-face 'highlight)
 
-;; hilight only keywords
-(setq hrb-hilight-mode 'keywords)
+;; highlight only keywords
+(setq hrb-highlight-mode 'keywords)
 
-;; hilight complete block
-(setq hrb-hilight-mode 'complete)
+;; highlight complete block
+(setq hrb-highlight-mode 'complete)
 
-;; hilight keywords if both are visible, hilight complete block otherwise
-(setq hrb-hilight-mode 'mixed)
+;; highlight keywords if both are visible, highlight complete block otherwise
+(setq hrb-highlight-mode 'mixed)
 
 ;; enable hrb-mode
 (hrb-mode t)

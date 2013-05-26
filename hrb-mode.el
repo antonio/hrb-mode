@@ -26,17 +26,17 @@
 (require 'ruby-mode)
 
 (defgroup hrb nil
-  "Hilight Ruby Block (HRB)"
-  :tag "Hilight Ruby Block"
+  "Highlight Ruby Block (HRB)"
+  :tag "Highlight Ruby Block"
   :group 'hrb)
 
-(defcustom hrb-hilight-keyword-face 'show-paren-match-face
-  "Face for keyword hilighting."
+(defcustom hrb-highlight-keyword-face 'show-paren-match-face
+  "Face for keyword highlighting."
   :type	 'face
   :group 'hrb)
 
-(defcustom hrb-hilight-block-face 'highlight
-  "Face for block hilighting."
+(defcustom hrb-highlight-block-face 'highlight
+  "Face for block highlighting."
   :type	 'face
   :group 'hrb)
 
@@ -45,15 +45,15 @@
   :type	 'number
   :group 'hrb)
 
-(defcustom hrb-hilight-mode 'complete
-  "Describes how to hilight the ruby blocks. Default is complete.
+(defcustom hrb-highlight-mode 'complete
+  "Describes how to highlight the ruby blocks. Default is complete.
 
 Choces are as follows:
 
 nil      => nothing
-complete => hilight complete block
-keywords => hilight only keywords
-mixed    => hilight keywords if both are visible, hilight block if not"
+complete => highlight complete block
+keywords => highlight only keywords
+mixed    => highlight keywords if both are visible, highlight block if not"
   :type	 '(choice
            (const :tag "nothing" nil)
            (const :tag "keywords" keywords)
@@ -106,7 +106,7 @@ mixed    => hilight keywords if both are visible, hilight block if not"
 
   (let (
         (cword (current-word))
-        (cface (get-text-property (point) 'face)) ; we need this to avoid hilighting in a string
+        (cface (get-text-property (point) 'face)) ; we need this to avoid highlighting in a string
         )
     (when (and (member cword hrb-keywords)
                (equal cface 'font-lock-keyword-face))
@@ -114,7 +114,7 @@ mixed    => hilight keywords if both are visible, hilight block if not"
             (start (hrb-keyword-start (point)))
             (pos (hrb-keyword-start (hrb-keyword-position (point))))
             )
-        (hrb-hilight start pos)
+        (hrb-highlight start pos)
         )
       )
     )
@@ -162,7 +162,7 @@ mixed    => hilight keywords if both are visible, hilight block if not"
   )
 
 
-(defun hrb-do-hilight-keywords (start end)
+(defun hrb-do-highlight-keywords (start end)
   (save-excursion
     (goto-char start)
     (let (
@@ -181,7 +181,7 @@ mixed    => hilight keywords if both are visible, hilight block if not"
         (setq hrb-overlay (make-overlay start1 end1))
         )
       (overlay-put hrb-overlay
-                   'face hrb-hilight-keyword-face)
+                   'face hrb-highlight-keyword-face)
       )
 
     (goto-char end)
@@ -201,35 +201,35 @@ mixed    => hilight keywords if both are visible, hilight block if not"
         (setq hrb-overlay-1 (make-overlay start1 end1))
         )
       (overlay-put hrb-overlay-1
-                   'face hrb-hilight-keyword-face)
+                   'face hrb-highlight-keyword-face)
       )
     )
   )
 
-(defun hrb-do-hilight-complete (start end)
+(defun hrb-do-highlight-complete (start end)
   (if hrb-overlay
       (move-overlay hrb-overlay start end)
     (setq hrb-overlay (make-overlay start end))
     )
 
   (overlay-put hrb-overlay
-               'face hrb-hilight-block-face)
+               'face hrb-highlight-block-face)
   )
 
-(defun hrb-do-hilight-mixed (start end)
+(defun hrb-do-highlight-mixed (start end)
   (catch 'return
     (save-excursion
       (goto-char start)
 
       (skip-chars-forward "A-Za-z0-9")
       (when (not (pos-visible-in-window-p (point)))
-        (hrb-do-hilight-complete start end)
+        (hrb-do-highlight-complete start end)
         (throw 'return t)
         )
 
       (skip-chars-backward "A-Za-z0-9")
       (when (not (pos-visible-in-window-p (point)))
-        (hrb-do-hilight-complete start end)
+        (hrb-do-highlight-complete start end)
         (throw 'return t)
         )
 
@@ -237,43 +237,43 @@ mixed    => hilight keywords if both are visible, hilight block if not"
 
       (skip-chars-forward "A-Za-z0-9")
       (when (not (pos-visible-in-window-p (point)))
-        (hrb-do-hilight-complete start end)
+        (hrb-do-highlight-complete start end)
         (throw 'return t)
         )
 
       (skip-chars-backward "A-Za-z0-9")
       (when (not (pos-visible-in-window-p (point)))
-        (hrb-do-hilight-complete start end)
+        (hrb-do-highlight-complete start end)
         (throw 'return t)
         )
 
       )
 
-    (hrb-do-hilight-keywords start end)
+    (hrb-do-highlight-keywords start end)
     )
   )
 
-(defun hrb-hilight (start end)
+(defun hrb-highlight (start end)
   (cond
-   ((equal hrb-hilight-mode 'complete)
-    (hrb-do-hilight-complete start end)
+   ((equal hrb-highlight-mode 'complete)
+    (hrb-do-highlight-complete start end)
     )
 
-   ((equal hrb-hilight-mode 'keywords)
-    (hrb-do-hilight-keywords start end)
+   ((equal hrb-highlight-mode 'keywords)
+    (hrb-do-highlight-keywords start end)
     )
 
-   ((equal hrb-hilight-mode 'mixed)
-    (hrb-do-hilight-mixed start end)
+   ((equal hrb-highlight-mode 'mixed)
+    (hrb-do-highlight-mixed start end)
     )
    )
 
-  (add-hook 'pre-command-hook 'hrb-stop-hilight)
+  (add-hook 'pre-command-hook 'hrb-stop-highlight)
   )
 
-(defun hrb-stop-hilight ()
+(defun hrb-stop-highlight ()
   "Remove overlay when done"
-  (remove-hook 'pre-command-hook 'hrb-stop-hilight)
+  (remove-hook 'pre-command-hook 'hrb-stop-highlight)
 
   (when hrb-overlay
       (delete-overlay hrb-overlay))
