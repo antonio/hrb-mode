@@ -47,11 +47,13 @@ Choces are as follows:
 
 nil      => nothing
 complete => hilight complete block
-keywords => hilight only keywords"
+keywords => hilight only keywords
+mixed    => hilight keywords if both are visible, hilight block if not"
   :type	 '(choice
            (const :tag "nothing" nil)
            (const :tag "keywords" keywords)
-           (const :tag "complete block" complete))
+           (const :tag "complete block" complete)
+           (const :tag "mixed mode" mixed))
   :group 'hrb
   )
 
@@ -86,7 +88,11 @@ keywords => hilight only keywords"
 
 (defun hrb-timer-hook ()
   (if (eq major-mode 'ruby-mode)
-      (hrb-execute)
+      (condition-case err
+          (hrb-execute)
+        (error
+         (setq hrb-mode nil)
+         (message "Error: %S; disabling hrb-mode" err)))
     (setq hrb-mode nil))
   )
 
@@ -151,60 +157,109 @@ keywords => hilight only keywords"
   )
 
 
-(defun hrb-hilight (start end)
-  (cond
-   ((equal hrb-hilight-mode 'complete)
-    (if hrb-overlay
-        (move-overlay hrb-overlay start end)
-      (setq hrb-overlay (make-overlay start end))
+(defun hrb-do-hilight-keywords (start end)
+  (save-excursion
+    (goto-char start)
+    (let (
+          start1
+          end1
+          )
+
+      (skip-chars-forward "A-Za-z0-9")
+      (setq start1 (point))
+
+      (skip-chars-backward "A-Za-z0-9")
+      (setq end1 (point))
+
+      (if hrb-overlay
+          (move-overlay hrb-overlay start1 end1)
+        (setq hrb-overlay (make-overlay start1 end1))
+        )
+      (overlay-put hrb-overlay
+                   'face hrb-hilight-face)
       )
 
-    (overlay-put hrb-overlay
-                 'face hrb-hilight-face)
+    (goto-char end)
+    (let (
+          start1
+          end1
+          )
+
+      (skip-chars-forward "A-Za-z0-9")
+      (setq start1 (point))
+
+      (skip-chars-backward "A-Za-z0-9")
+      (setq end1 (point))
+
+      (if hrb-overlay-1
+          (move-overlay hrb-overlay-1 start1 end1)
+        (setq hrb-overlay-1 (make-overlay start1 end1))
+        )
+      (overlay-put hrb-overlay-1
+                   'face hrb-hilight-face)
+      )
+    )
+  )
+
+(defun hrb-do-hilight-complete (start end)
+  (if hrb-overlay
+      (move-overlay hrb-overlay start end)
+    (setq hrb-overlay (make-overlay start end))
     )
 
-   ((equal hrb-hilight-mode 'keywords)
+  (overlay-put hrb-overlay
+               'face hrb-hilight-face)
+  )
+
+(defun hrb-do-hilight-mixed (start end)
+  (catch 'return
     (save-excursion
       (goto-char start)
-      (let (
-            start1
-            end1
-            )
 
-        (skip-chars-forward "A-Za-z0-9")
-        (setq start1 (point))
+      (skip-chars-forward "A-Za-z0-9")
+      (when (not (pos-visible-in-window-p (point)))
+        (hrb-do-hilight-complete start end)
+        (throw 'return t)
+        )
 
-        (skip-chars-backward "A-Za-z0-9")
-        (setq end1 (point))
-
-        (if hrb-overlay
-            (move-overlay hrb-overlay start1 end1)
-          (setq hrb-overlay (make-overlay start1 end1))
-          )
-        (overlay-put hrb-overlay
-                     'face hrb-hilight-face)
+      (skip-chars-backward "A-Za-z0-9")
+      (when (not (pos-visible-in-window-p (point)))
+        (hrb-do-hilight-complete start end)
+        (throw 'return t)
         )
 
       (goto-char end)
-      (let (
-            start1
-            end1
-            )
 
-        (skip-chars-forward "A-Za-z0-9")
-        (setq start1 (point))
-
-        (skip-chars-backward "A-Za-z0-9")
-        (setq end1 (point))
-
-        (if hrb-overlay-1
-            (move-overlay hrb-overlay-1 start1 end1)
-          (setq hrb-overlay-1 (make-overlay start1 end1))
-          )
-        (overlay-put hrb-overlay-1
-                     'face hrb-hilight-face)
+      (skip-chars-forward "A-Za-z0-9")
+      (when (not (pos-visible-in-window-p (point)))
+        (hrb-do-hilight-complete start end)
+        (throw 'return t)
         )
+
+      (skip-chars-backward "A-Za-z0-9")
+      (when (not (pos-visible-in-window-p (point)))
+        (hrb-do-hilight-complete start end)
+        (throw 'return t)
+        )
+
       )
+
+    (hrb-do-hilight-keywords start end)
+    )
+  )
+
+(defun hrb-hilight (start end)
+  (cond
+   ((equal hrb-hilight-mode 'complete)
+    (hrb-do-hilight-complete start end)
+    )
+
+   ((equal hrb-hilight-mode 'keywords)
+    (hrb-do-hilight-keywords start end)
+    )
+
+   ((equal hrb-hilight-mode 'mixed)
+    (hrb-do-hilight-mixed start end)
     )
    )
 
