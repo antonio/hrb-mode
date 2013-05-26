@@ -3,6 +3,7 @@
 **hrb-mode** is an Emacs minor-mode for hilighting Ruby blocks just like `(show-paren-mode t)`.
 
 ![hrb-mode Screenshot](https://github.com/ckruse/hrb-mode/raw/master/screenshots/hilight-mode-region.png)
+![hrb-mode Screenshot](https://github.com/ckruse/hrb-mode/raw/master/screenshots/hilight-mode-keywords.png)
 
 ## Installation
 
