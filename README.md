@@ -16,8 +16,11 @@ Just clone this repository and add this directory to your `load-path`:
 ;; show region immediately
 (setq hrb-delay 0)
 
-;; set different face for hilighting
-(setq hrb-hilight-face 'highlight)
+;; set different face for hilighting keywords
+(setq hrb-hilight-keyword-face 'show-paren-match-face)
+
+;; set different face for hilighting block
+(setq hrb-hilight-block-face 'highlight)
 
 ;; hilight only keywords
 (setq hrb-hilight-mode 'keywords)

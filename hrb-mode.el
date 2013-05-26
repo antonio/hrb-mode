@@ -30,7 +30,12 @@
   :tag "Hilight Ruby Block"
   :group 'hrb)
 
-(defcustom hrb-hilight-face 'show-paren-match-face
+(defcustom hrb-hilight-keyword-face 'show-paren-match-face
+  "Face for keyword hilighting."
+  :type	 'face
+  :group 'hrb)
+
+(defcustom hrb-hilight-block-face 'highlight
   "Face for block hilighting."
   :type	 'face
   :group 'hrb)
@@ -176,7 +181,7 @@ mixed    => hilight keywords if both are visible, hilight block if not"
         (setq hrb-overlay (make-overlay start1 end1))
         )
       (overlay-put hrb-overlay
-                   'face hrb-hilight-face)
+                   'face hrb-hilight-keyword-face)
       )
 
     (goto-char end)
@@ -196,7 +201,7 @@ mixed    => hilight keywords if both are visible, hilight block if not"
         (setq hrb-overlay-1 (make-overlay start1 end1))
         )
       (overlay-put hrb-overlay-1
-                   'face hrb-hilight-face)
+                   'face hrb-hilight-keyword-face)
       )
     )
   )
@@ -208,7 +213,7 @@ mixed    => hilight keywords if both are visible, hilight block if not"
     )
 
   (overlay-put hrb-overlay
-               'face hrb-hilight-face)
+               'face hrb-hilight-block-face)
   )
 
 (defun hrb-do-hilight-mixed (start end)
