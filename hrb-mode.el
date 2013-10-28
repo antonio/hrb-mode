@@ -142,7 +142,8 @@ mixed    => highlight keywords if both are visible, highlight block if not"
         (cface (get-text-property (point) 'face)) ; we need this to avoid highlighting in a string
         )
     (when (and (member cword hrb-keywords)
-               (equal cface 'font-lock-keyword-face))
+               (equal cface 'font-lock-keyword-face)
+               (hrb-is-block (point)))
       (let (
             (start (hrb-keyword-start (point)))
             (pos (hrb-keyword-start (hrb-keyword-position (point))))
@@ -152,6 +153,20 @@ mixed    => highlight keywords if both are visible, highlight block if not"
       )
     )
   )
+
+(defun hrb-is-block (pos)
+  (save-excursion
+    (let (
+          (in-block t)
+          )
+      (skip-chars-backward (current-word))
+      (backward-char)
+
+      (while (not (looking-at "\n"))
+        (when (not (looking-at-p "\\s-"))
+          (setq in-block nil))
+        (backward-char))
+      in-block)))
 
 
 (defun hrb-keyword-start (pos)
@@ -181,6 +196,11 @@ mixed    => highlight keywords if both are visible, highlight block if not"
     (if (string= (current-word) "end")
         (progn
           (ruby-beginning-of-block) ;; search for matching keyword
+          (while (not (and (member (current-word) hrb-keywords)
+                           (equal cface 'font-lock-keyword-face)))
+            (forward-word)
+            )
+
           (setq pos (point))
           )
 
