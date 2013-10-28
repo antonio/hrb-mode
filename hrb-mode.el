@@ -58,8 +58,6 @@
 ;;
 ;;
 
-(require 'ruby-mode)
-
 (defgroup hrb nil
   "Highlight Ruby Block (HRB)"
   :tag "Highlight Ruby Block"
@@ -127,7 +125,7 @@ mixed    => highlight keywords if both are visible, highlight block if not"
   )
 
 (defun hrb-timer-hook ()
-  (if (eq major-mode 'ruby-mode)
+  (if (or (eq major-mode 'ruby-mode) (eq major-mode 'enh-ruby-mode))
       (condition-case err
           (hrb-execute)
         (error
