@@ -58,6 +58,8 @@
 ;;
 ;;
 
+(require 'ruby-mode)
+
 (defgroup hrb nil
   "Highlight Ruby Block (HRB)"
   :tag "Highlight Ruby Block"
