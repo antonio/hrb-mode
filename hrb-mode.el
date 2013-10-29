@@ -195,17 +195,22 @@ mixed    => highlight keywords if both are visible, highlight block if not"
 
     (if (string= (current-word) "end")
         (progn
-          (ruby-beginning-of-block) ;; search for matching keyword
+          (if (fboundp 'ruby-beginning-of-block)
+              (ruby-beginning-of-block) ;; search for matching keyword
+            (enh-ruby-beginning-of-block))
           (while (not (and (member (current-word) hrb-keywords)
-                           (equal cface 'font-lock-keyword-face)))
-            (forward-word)
+                           (equal cface 'font-lock-keyword-face)
+                           (not (looking-at "\n"))))
+            (forward-char)
             )
 
           (setq pos (point))
           )
 
       (progn
-        (ruby-end-of-block)
+        (if (fboundp 'ruby-end-of-block)
+            (ruby-end-of-block)
+          (enh-ruby-end-of-block))
         (setq pos (point))
         )
       )
